@@ -11,7 +11,8 @@ const COMPLEX_RULES: { [key: string]: string } = {
   "lla": "야", "lle": "예", "lli": "이", "llo": "요", "llu": "유",
   "cha": "차", "che": "체", "chi": "치", "cho": "초", "chu": "추",
   "que": "케", "qui": "키",
-  "ge": "헤", "gi": "히", "ja": "하", "je": "헤", "ji": "히", "jo": "호", "ju": "후"
+  "ge": "헤", "gi": "히", "ja": "하", "je": "헤", "ji": "히", "jo": "호", "ju": "후",
+  "ce": "세", "ci": "시" // Lucía 같은 이름을 위해 추가
 };
 
 const CONSONANTS: { [key: string]: string } = {
@@ -26,7 +27,6 @@ const VOWELS: { [key: string]: string } = {
   "a": "ㅏ", "e": "ㅔ", "i": "ㅣ", "o": "ㅗ", "u": "ㅜ"
 };
 
-// 받침으로 사용될 때의 한글 자모 인덱스
 const JONGSEONG_MAP: { [key: string]: string } = {
   "n": "ㄴ", "m": "ㅁ", "l": "ㄹ", "r": "ㄹ", "s": "ㅅ"
 };
@@ -53,7 +53,6 @@ const combineHangul = (cho: string, jung: string, jong: string = ""): string => 
 export const convertLatinToKorean = (name: string): string => {
   if (!name) return "";
 
-  // 악센트 제거 (á -> a, í -> i 등)
   const normalized = name
     .trim()
     .toLowerCase()
@@ -73,7 +72,6 @@ export const convertLatinToKorean = (name: string): string => {
     const nextNextChar = normalized[i + 2];
     const nextNextNextChar = normalized[i + 3];
 
-    // 1. 복합 규칙 (3글자 우선)
     const char3 = normalized.substring(i, i + 3);
     const char2 = normalized.substring(i, i + 2);
 
@@ -89,9 +87,7 @@ export const convertLatinToKorean = (name: string): string => {
       continue;
     }
 
-    // 2. 자음 + 모음 조합
     if (CONSONANTS[char1] && nextChar && VOWELS[nextChar]) {
-      // 받침 처리 (Juan의 n 등)
       if (
         nextNextChar && 
         CONSONANTS[nextNextChar] && 
@@ -105,7 +101,6 @@ export const convertLatinToKorean = (name: string): string => {
         i += 2;
       }
     }
-    // 3. 모음 단독 (Ana의 A 등)
     else if (VOWELS[char1]) {
       if (
         nextChar && 
@@ -120,7 +115,6 @@ export const convertLatinToKorean = (name: string): string => {
         i++;
       }
     }
-    // 4. 자음 단독
     else if (CONSONANTS[char1]) {
       result += combineHangul(CONSONANTS[char1], "ㅡ");
       i++;
